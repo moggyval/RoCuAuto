@@ -18,7 +18,7 @@
       <button class="btn tiny" type="button" onclick="closeAppt()">X</button>
     </div>
 
-    <form method="post" id="apptForm" action="{{ url_for('appointment_create') }}">
+    <form method="post" id="apptForm" action="{{ url_for('calendar_create') }}">
       <input type="hidden" name="appt_id" id="appt_id">
       <div class="grid2">
         <div>
@@ -46,14 +46,6 @@
         </div>
       </div>
 
-      <label>Status</label>
-      <select name="status" id="status">
-        <option value="scheduled">scheduled</option>
-        <option value="in_progress">in_progress</option>
-        <option value="done">done</option>
-        <option value="canceled">canceled</option>
-      </select>
-
       <label>Notes</label>
       <textarea name="notes" id="notes" rows="3"></textarea>
 
@@ -63,10 +55,9 @@
       </div>
     </form>
 
-    <form method="post" action="{{ url_for('appointment_delete') }}" style="margin-top:10px;">
-      <input type="hidden" name="appt_id" id="del_appt_id">
-      <button class="btn danger" type="submit">Delete Appointment</button>
-    </form>
+    <div style="margin-top:10px;">
+      <button class="btn danger" type="button" id="deleteAppt">Delete Appointment</button>
+    </div>
   </div>
 </div>
 
@@ -78,14 +69,18 @@ const modal = document.getElementById("apptModal");
 function closeAppt(){ modal.classList.remove("show"); }
 function openAppt(data){
   document.getElementById("appt_id").value = data.id || "";
-  document.getElementById("del_appt_id").value = data.id || "";
   if(data.ro_id) document.getElementById("ro_id").value = data.ro_id;
   document.getElementById("title").value = data.title || "";
   document.getElementById("start_at").value = data.start_at || "";
   document.getElementById("end_at").value = data.end_at || "";
-  document.getElementById("status").value = data.status || "scheduled";
   document.getElementById("notes").value = data.notes || "";
   modal.classList.add("show");
+}
+
+function formatForInput(date){
+  if(!date) return "";
+  const d = new Date(date);
+  return d.toISOString().slice(0,16);
 }
 
 async function getEvents(info){
@@ -105,16 +100,41 @@ document.addEventListener('DOMContentLoaded', async function() {
     dateClick: (info)=>{
       const start = info.dateStr + "T09:00";
       const end = info.dateStr + "T10:00";
-      openAppt({start_at:start, end_at:end, status:"scheduled"});
+      openAppt({start_at:start, end_at:end});
     },
-    eventClick: async (info)=>{
-      const id = info.event.id;
-      const r = await fetch(`/api/calendar/event/${encodeURIComponent(id)}`);
-      const data = await r.json();
-      openAppt(data);
+    eventClick: (info)=>{
+      fetch(`/api/calendar/event/${encodeURIComponent(info.event.id)}`)
+        .then((r)=>r.json())
+        .then((data)=>openAppt({
+          id: data.id,
+          title: data.title,
+          ro_id: data.ro_id,
+          notes: data.notes,
+          start_at: formatForInput(data.start_at),
+          end_at: formatForInput(data.end_at),
+        }));
     }
   });
   cal.render();
+  document.getElementById("apptForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const apptId = document.getElementById("appt_id").value;
+    const form = new FormData(e.target);
+    if(apptId){
+      await fetch(`/api/calendar/appointments/${encodeURIComponent(apptId)}/update`, {method:"POST", body:form});
+    }else{
+      await fetch("/api/calendar/appointments", {method:"POST", body:form});
+    }
+    closeAppt();
+    cal.refetchEvents();
+  });
+  document.getElementById("deleteAppt").addEventListener("click", async ()=>{
+    const apptId = document.getElementById("appt_id").value;
+    if(!apptId) return;
+    await fetch(`/api/calendar/appointments/${encodeURIComponent(apptId)}/delete`, {method:"POST"});
+    closeAppt();
+    cal.refetchEvents();
+  });
 });
 modal.addEventListener("click", (e)=>{ if(e.target===modal) closeAppt(); });
 </script>
