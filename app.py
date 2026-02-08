@@ -568,7 +568,6 @@ def create_app():
                 "end": a.end_at.isoformat(),
                 "extendedProps": {
                     "ro_id": a.ro_id,
-                    "status": a.status,
                     "notes": a.notes,
                 }
             })
@@ -650,7 +649,6 @@ def create_app():
         title = (request.form.get("title") or "").strip()
         start_at = (request.form.get("start_at") or "").strip()
         end_at = (request.form.get("end_at") or "").strip()
-        status = (request.form.get("status") or "").strip() or appt.status
         notes = (request.form.get("notes") or "").strip() or None
 
         if title:
@@ -659,7 +657,6 @@ def create_app():
             appt.start_at = datetime.fromisoformat(start_at.replace("Z",""))
         if end_at:
             appt.end_at = datetime.fromisoformat(end_at.replace("Z",""))
-        appt.status = status
         appt.notes = notes
         db.session.add(appt)
         db.session.commit()

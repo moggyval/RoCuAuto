@@ -47,14 +47,6 @@
         </div>
       </div>
 
-      <label>Status</label>
-      <select name="status" id="status">
-        <option value="scheduled">scheduled</option>
-        <option value="in_progress">in_progress</option>
-        <option value="done">done</option>
-        <option value="canceled">canceled</option>
-      </select>
-
       <label>Notes</label>
       <textarea name="notes" id="notes" rows="3"></textarea>
 
@@ -82,7 +74,6 @@ function openAppt(data){
   document.getElementById("title").value = data.title || "";
   document.getElementById("start_at").value = data.start_at || "";
   document.getElementById("end_at").value = data.end_at || "";
-  document.getElementById("status").value = data.status || "scheduled";
   document.getElementById("notes").value = data.notes || "";
   modal.classList.add("show");
 }
@@ -110,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     dateClick: (info)=>{
       const start = info.dateStr + "T09:00";
       const end = info.dateStr + "T10:00";
-      openAppt({start_at:start, end_at:end, status:"scheduled"});
+      openAppt({start_at:start, end_at:end});
     },
     eventClick: (info)=>{
       fetch(`/api/calendar/event/${encodeURIComponent(info.event.id)}`)
