@@ -597,6 +597,7 @@ def create_app():
             "ro_id": appt.ro_id,
             "start_at": appt.start_at.isoformat(),
             "end_at": appt.end_at.isoformat(),
+            "status": appt.status,
             "notes": appt.notes,
         })
 
@@ -605,6 +606,7 @@ def create_app():
         title = (request.form.get("title") or "").strip() or "Appointment"
         start_at = (request.form.get("start_at") or "").strip()
         end_at = (request.form.get("end_at") or "").strip()
+        status = (request.form.get("status") or "").strip() or "scheduled"
         notes = (request.form.get("notes") or "").strip() or None
 
         if not ro_id:
@@ -622,6 +624,7 @@ def create_app():
             title=title,
             start_at=sdt,
             end_at=edt,
+            status=status,
             notes=notes,
             created_at=datetime.utcnow(),
         )
