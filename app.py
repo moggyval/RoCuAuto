@@ -120,15 +120,29 @@ def create_app():
             return -abs(amt)
         return amt
 
+    def active_items_for_totals(items):
+        job_ids = list({i.job_id for i in items if i.job_id})
+        job_status = {}
+        if job_ids:
+            job_status = {
+                j.id: j.status
+                for j in Job.query.filter(Job.id.in_(job_ids)).all()
+            }
+        return [
+            i for i in items
+            if (not i.job_id) or job_status.get(i.job_id) != "declined"
+        ]
+
     def recalc_document_totals(doc: Document):
         if doc.status in ("locked", "paid") or doc.locked_at is not None:
             return
 
         items = LineItem.query.filter_by(document_id=doc.id).all()
-        subtotal = sum((line_amount(i) for i in items), start=Decimal("0.00"))
+        active_items = active_items_for_totals(items)
+        subtotal = sum((line_amount(i) for i in active_items), start=Decimal("0.00"))
 
         taxable = sum(
-            (line_amount(i) for i in items if i.taxable and i.item_type != "discount"),
+            (line_amount(i) for i in active_items if i.taxable and i.item_type != "discount"),
             start=Decimal("0.00"),
         )
         tax = (taxable * TAX_RATE).quantize(Decimal("0.01"))
@@ -486,7 +500,28 @@ def create_app():
     @app.get("/calendar")
     @login_required
     def calendar_view():
-        return render_template("calendar.html")
+        ros = RepairOrder.query.filter(RepairOrder.deleted_at.is_(None)).order_by(RepairOrder.opened_at.desc()).limit(200).all()
+        cust_ids = list({r.customer_id for r in ros})
+        veh_ids = list({r.vehicle_id for r in ros})
+        customers = Customer.query.filter(Customer.id.in_(cust_ids)).all() if cust_ids else []
+        vehicles = Vehicle.query.filter(Vehicle.id.in_(veh_ids)).all() if veh_ids else []
+        cust_map = {c.id: c for c in customers}
+        veh_map = {v.id: v for v in vehicles}
+        ro_pick = []
+        for ro in ros:
+            cust = cust_map.get(ro.customer_id)
+            veh = veh_map.get(ro.vehicle_id)
+            vehicle_text = ""
+            if veh:
+                parts = [veh.year, veh.make, veh.model, veh.engine]
+                vehicle_text = " ".join([str(p) for p in parts if p])
+            ro_pick.append({
+                "id": ro.id,
+                "ro_number": ro.ro_number,
+                "customer_name": cust.name if cust else "",
+                "vehicle_text": vehicle_text,
+            })
+        return render_template("calendar.html", ro_pick=ro_pick)
 
     @app.get("/api/appointments")
     @login_required
