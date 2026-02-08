@@ -621,7 +621,6 @@ def create_app():
             abort(400)
 
         appt = Appointment(
-            id=gen_uuid(),
             ro_id=ro_id,
             title=title,
             start_at=sdt,
