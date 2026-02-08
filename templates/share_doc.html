@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="topbar">
-    <div class="brand">{{ t }}</div>
+    <div class="brand">RoCo Auto</div>
     <div class="nav">
       <a href="{{ pdf_url }}" class="pilllink" target="_blank">Download PDF</a>
     </div>
@@ -19,31 +19,10 @@
     <div class="card share-hero">
       <div class="share-top-bubble">
       <div class="share-meta">
-        <div class="pill">Status: {{ doc.status }}</div>
-        <h2>{{ doc.doc_type|capitalize }} (v{{ doc.version }})</h2>
         <div class="share-info">
           <span class="muted small">RO #{{ ro.ro_number }}</span>
           <span class="muted small">{{ customer.name }}</span>
           <span class="muted small">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }} {{ vehicle.engine }}</span>
-        </div>
-      </div>
-      <div class="share-cta-bar">
-        <div class="muted small">Review each job and approve or decline.</div>
-      </div>
-        </div>
-      </div>
-      <div class="share-cta">
-        <div class="muted small">Review each job and approve or decline.</div>
-      </div>
-        <div class="muted">RO #{{ ro.ro_number }} — {{ customer.name }}</div>
-        <div class="muted">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }} {{ vehicle.engine }}</div>
-      </div>
-      <div class="share-total">
-        <div class="muted small">Total</div>
-        <div class="big">${{ doc.total }}</div>
-        <div class="share-total-breakdown">
-          <span class="muted small">Subtotal: ${{ doc.subtotal }}</span>
-          <span class="muted small">Tax: ${{ doc.tax }}</span>
         </div>
       </div>
     </div>
