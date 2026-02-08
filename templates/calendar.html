@@ -18,6 +18,7 @@
       <button class="btn tiny" type="button" onclick="closeAppt()">X</button>
     </div>
 
+    <form method="post" id="apptForm" action="{{ url_for('calendar_create') }}">
     <form method="post" id="apptForm">
       <input type="hidden" name="appt_id" id="appt_id">
       <div class="grid2">

@@ -523,6 +523,13 @@ def create_app():
             })
         return render_template("calendar.html", ro_pick=ro_pick)
 
+    @app.post("/calendar", endpoint="calendar_create")
+    @login_required
+    def calendar_create():
+        create_appointment_from_form()
+        flash("Appointment saved.")
+        return redirect(url_for("calendar_view"))
+
     def calendar_events(start=None, end=None):
         q = Appointment.query
         if start:
