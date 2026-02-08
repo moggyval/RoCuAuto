@@ -18,12 +18,17 @@
   <div class="container">
     <div class="card share-hero">
       <div class="share-top-bubble">
+        <div class="pill">Status: {{ doc.status }}</div>
+        <h2>{{ doc.doc_type|capitalize }} (v{{ doc.version }})</h2>
       <div class="share-meta">
         <div class="share-info">
           <span class="muted small">RO #{{ ro.ro_number }}</span>
           <span class="muted small">{{ customer.name }}</span>
           <span class="muted small">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }} {{ vehicle.engine }}</span>
         </div>
+      </div>
+      <div class="share-cta-bar">
+        <div class="muted small">Review each job and approve or decline.</div>
       </div>
     </div>
 
