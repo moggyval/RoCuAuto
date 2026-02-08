@@ -84,7 +84,13 @@ def create_app():
             return fn(*args, **kwargs)
         return wrapper
 
+    @app.get("/privacy-policy")
+    def login():
+        return render_template("privacy_policy.html")
 
+    @app.get("/terms-and-conditions")
+    def login():
+        return render_template("terms_and_conditions.html")
 
     @app.get("/login")
     def login():
